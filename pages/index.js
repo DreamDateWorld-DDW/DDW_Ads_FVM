@@ -64,6 +64,16 @@ export default function Home() {
                   onChange={handleName}
                 />
               </div>
+              
+              <div className="flex mt-2 mb-2 flex-col">
+                <label className="uppercase  py-2">Listing Name</label>
+                <input
+                  className="border-2 rounded-lg p-2 flex border-gray-300"
+                  name="company name"
+                  type="text" placeholder="Enter What is the Ad Listing about?"
+                  onChange={handleName}
+                />
+              </div>
               <div className="flex flex-col text-xl mt-2 mb-2">
                 <label htmlFor="" style={{ marginTop: "1px" }} className="text-base uppercase" >
                   Interest :
@@ -117,9 +127,10 @@ export default function Home() {
                   </Link>
 
                 </div>
-
+                  
 
               </div>
+              
             </div>
           </div>
         </form>
