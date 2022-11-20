@@ -1,14 +1,17 @@
 import Select from 'react-dropdown-select'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-function Ads_Dropdown({ onSelect }) {
-    const [options, setOptions] = useState([
-        { id: 1, Interest: "Grocery" },
-        { id: 2, Interest: "Fashion" },
-        { id: 3, Interest: "Electronics" },
-        { id: 4, Interest: "Beauty Products" },
-        { id: 5, Interest: "Travel" },
-    ])
+function Ads_Dropdown({ onSelect, data }) {
+    const [options, setOptions] = useState([])
+
+    useEffect(() => {
+        var optionsData = []
+        for(var i=0; i < data.length; i++) {
+            optionsData.push({id: i+1, Interest: data[i]})
+        }
+        console.log("listing name", optionsData)
+        setOptions(optionsData)
+    }, [data])
 
     const [selectedOptions, setSelectedOptions] = useState([])
 
@@ -19,7 +22,6 @@ function Ads_Dropdown({ onSelect }) {
                 <Select className='rounded-lg p-6 text-gray-700 ' options={options.map((item, index) => {
                     return { value: item.id, label: item.Interest }
                 })}
-                    multi="true"
                     
                     values={selectedOptions} onChange={(values) => {
                         setSelectedOptions([...values]);

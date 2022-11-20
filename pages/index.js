@@ -3,12 +3,17 @@ import Dropdown from "./Dropdown";
 import { useState } from "react";
 import Link from "next/link";
 import BarChart from "./new";
+import { ads_read_contract } from "../utilities/readContract";
+import { ethers } from "ethers";
+import { useRouter } from "next/router";
 
 var userDetailsValue = {}
 export default function Home() {
   const [userDetails, setuserDetails] = useState({
     interest: [], counter: " ", price_check: " ",
   });
+  const [priceVal, setPriceVal] = useState(0);
+  const router = useRouter();
 
   const onSelect = async (values) => {
     setuserDetails({ ...userDetails, interest: values })
@@ -26,7 +31,15 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     userDetailsValue = { ...userDetails, [name]: value };
+    var value = await ads_read_contract.calculate_price(userDetailsValue.interest.map((val) => val.label), userDetailsValue.watchCount);
+    setPriceVal(ethers.utils.formatEther(value));
     console.log(userDetailsValue);
+  }
+  const handleProceed = async (e) => {
+    e.preventDefault();
+    // add listing
+    router.push("/new");
+
   }
 
 
@@ -97,7 +110,7 @@ export default function Home() {
                   className="border-2 rounded-lg p-2 flex text-xl border-gray-300"
                   name="check price"
                   type="decimal" placeholder="Check Price"
-                  value={1.0}
+                  value={priceVal}
                   contentEditable={false}
                 />
               </div>
@@ -115,6 +128,7 @@ export default function Home() {
                     <button
                       type="submit"
                       className="bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500  text-white py-3 mt-6 rounded-full w-3/5"
+                      onClick={handleProceed}
                     >
                       Confirm & Proceed
                     </button>

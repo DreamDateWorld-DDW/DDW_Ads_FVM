@@ -3,70 +3,66 @@ import Link from 'next/link';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Ads_Dropdown from './Ads_Dropdown';
 import { createDDWAdsWriteContract } from '../utilities/writeContract';
+import { ethers } from 'ethers';
 
 function New() {
-    const [userDetails, setuserDetails] = useState();
-    const [dropdata, setData] = useState();
-    const [viewdata, setViewData] = useState();
-    const onSelect = async (values) => {
-        setuserDetails({ ...userDetails, interest: values })
+    const [dropdata, setData] = useState([]);
+    const [viewdata, setViewData] = useState([]);
+    const [listing, setListing] = useState(null);
+    const [totalWatchCount, setTotalWatchCount] = useState(0);
+    const [ValueLocked, setValueLocked] = useState(0);
+    const [ValueSpent, setValueSpent] = useState(0);
+    const [state, setState] = useState(null);
+    const onSelect = async (value) => {
+        setListing(value[0].label);
+        var Contract = createDDWAdsWriteContract();
+        var response = await Contract.view_listing_analytics(value[0].label);
+        setViewData(transform_data(response));
+
     }
+    const gender = {0: "male", 1: "female"}
 
     function transform_data(_data) {
-        returnData = {}
-        for(i=0; i<data[8].length; i++){
-            if(!(_data[8][i] in  returnData)) returnData[_data[8][i]] = {}
-            if(_data[9][i] in returnData[_data[8][i]]) {
-
-            }
-            returnData[_data[8][i]] = { }
+        var returnData = []
+        for(var i=0; i<_data[8].length; i+=2){
+            var element = {name: _data[8][i], [gender[_data[9][i]]]: ethers.utils.formatUnits(_data[10][i], 0), [gender[_data[9][i+1]]]: ethers.utils.formatUnits(_data[10][i+1], 0)}
+            returnData.push(element)
         }
-        _data[8] 
+        console.log("viewdata", returnData);
+        return returnData;
     }
 
     useEffect(() => {
         var Contract = createDDWAdsWriteContract();
+        console.log("dddd");
         Contract.view_listing_names().then(
             (listings) => {
+                console.log("list", listings);
                 if(listings.length === 0) return;
                 setData(listings)
-                Contract.view_listing_analytics().then(
+                setListing(listings[0])
+                Contract.view_listing_analytics(listings[0]).then(
                     (response) => {
-                        console.log(response)
-                        var thedata = transform_data(response)
-                        setViewData(thedata);
+                       setViewData(transform_data(response));
+                       setTotalWatchCount(ethers.utils.formatUnits(response.watchCountAchieved,0))
+                       setValueLocked(Math.round(ethers.utils.formatEther(response.priceLocked)*100)/100)
+                       setValueSpent(Math.round(ethers.utils.formatEther(response.spentValue)*100)/100)
+                       console.log("state", response.state);
+                       setState(parseInt(ethers.utils.formatUnits(response.state, 0)))
                     }
                 )
             }
         )
-    })
+    }, [])
 
-    const data = [
-        {
-            name: 'Coffee',
-            male: 4000,
-            female: 2400,
+    async function OnWithdraw() {
 
-        },
-        {
-            name: 'Club',
-            male: 3000,
-            female: 1398,
+    }
 
-        },
-        {
-            name: 'Park',
-            male: 2000,
-            female: 9800,
-            amt: 2290,
-        },
-        {
-            name: 'Hiking',
-            male: 2780,
-            female: 3908,
-            amt: 2000,
-        },
-    ]
+    const State0 = <div className=' p-3 m-6  flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
+    <h2 className='text-xl  mt-2 text-center items-center justify-center '>Remaining Amount  </h2>
+    <h2 className='text-xl text-green-600 hover:text-green-500 '>{ValueLocked - ValueSpent} TFIL</h2>
+    </div>
 
 
     return (
@@ -79,23 +75,39 @@ function New() {
 
                         <div className=' p-3  m-6 flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
                             <h2 className='text-xl w-full mt-2 text-center items-center justify-center '>Total Watch  Count  </h2>
-                            <h2 className='text-xl text-purple-600 hover:text-blue-300 '>1000</h2>
+                            <h2 className='text-xl text-purple-600 hover:text-blue-300 '>{totalWatchCount}</h2>
                         </div>
 
                         <div className=' p-3 m-6  flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
                             <h2 className='text-xl  mt-2 text-center items-center justify-center '>Total Value Locked </h2>
-                            <h2 className='text-xl text-gray-600 hover:text-orange-800 '>$2000</h2>
+                            <h2 className='text-xl text-gray-600 hover:text-orange-800 '>{ValueLocked} TFIL</h2>
                         </div>
 
                         <div className=' p-3 m-6  flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
                             <h2 className='text-xl  mt-2 text-center items-center justify-center '>Total Value  Spent </h2>
-                            <h2 className='text-xl text-red-600 hover:text-orange-600'>$1000</h2>
+                            <h2 className='text-xl text-red-600 hover:text-orange-600'>{ValueSpent} TFIL</h2>
                         </div>
-
+                        <div>
+                        {state === 0 && 
                         <div className=' p-3 m-6  flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
-                            <h2 className='text-xl  mt-2 text-center items-center justify-center '>Remaining Amount  </h2>
-                            <h2 className='text-xl text-green-600 hover:text-green-500 '>$1000</h2>
+                        <h2 className='text-xl  mt-2 text-center items-center justify-center '>Remaining Amount  </h2>
+                        <h2 className='text-xl text-green-600 hover:text-green-500 '>{ValueLocked - ValueSpent} TFIL</h2>
                         </div>
+                        }
+                        {
+                            state === 1 &&
+                            <div className=' p-3 m-6  flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
+                            <h2 className='text-xl  text-red-600 mt-2 text-center items-center justify-center '>Listed Ended, Withdraw:  </h2>
+                            <h2 className='text-xl text-green-600 hover:text-green-500 '>{ValueLocked - ValueSpent} TFIL</h2>
+                            </div>
+                        }
+                        {
+                            state === 2 &&
+                            <div className=' p-3 m-6  flex-col bg-white mt-2 h-22 text-center justify-center cursor-pointer shadow-2xl flex rounded-xl'>
+                            <h2 className='text-xl  text-green-600 mt-2 text-center items-center justify-center '>Listed Ended, Money WithDrawn  </h2>
+                            </div>
+                        }
+                        </div>       
 
 
 
@@ -105,7 +117,7 @@ function New() {
                             <BarChart
                                 width={500}
                                 height={300}
-                                data={data}
+                                data={viewdata}
                                 margin={{
                                     top: 5,
                                     right: 30,
@@ -141,7 +153,9 @@ function New() {
 
                         <button
                             type="submit"
-                            className="bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500  uppercase  text-white py-3 mt-6 rounded-full w-3/5">
+                            className="bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500  uppercase  text-white py-3 mt-6 rounded-full w-3/5"
+                            onClick={OnWithdraw}
+                            >
                             Withdraw Your Funds
                         </button>
 
