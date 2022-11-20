@@ -226,6 +226,10 @@ string[] public regKeywords;
         return regKeywords;
     }
 
+    function view_listing_names() external view returns(string[] memory) {
+        return listerIDtoInfo[msg.sender].listingName;
+    }
+
     function find_listing_id(string memory listingName, address lister) internal view returns(uint256) {
         bool found = false;
         uint256 index;
