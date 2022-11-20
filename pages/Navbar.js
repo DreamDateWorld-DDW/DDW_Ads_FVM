@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import Router, { useRouter, withRouter } from 'next/router';
 import Image from 'next/image';
 import Logo from "../logo.png"
+import { checkAndGetPolygonAddress } from '../utilities/utils';
+import { createDDWAdsWriteContract } from '../utilities/writeContract';
 
-
-const Navbar = ({ CreateProject, }) => {
+const Navbar = (props) => {
 
     const [nav, setNav] = useState(false);
     const [shadow, setShadow] = useState(false);
@@ -42,9 +43,18 @@ const Navbar = ({ CreateProject, }) => {
         window.addEventListener('scroll', handleShadow);
     }, []);
 
-    async function connectWalletButton() {
-        var returnValue = await ConnectWalletHandler();
-        setConnectWallet(returnValue[0]);
+    async function checkListing() {
+        var address = await checkAndGetPolygonAddress();
+        var Contract = createDDWAdsWriteContract();
+        var data = await Contract.view_listing_names();
+        if(data.length === 0)
+        {
+            alert("You don't have any listings!");
+            return;
+        }
+        else{
+            router.push("/new");
+        }    
     }
 
     return (
@@ -71,22 +81,13 @@ const Navbar = ({ CreateProject, }) => {
                 </div>
 
                 <div className='grid md:grid-cols-2 absolute ml-2 right-2 text-center bottom-5 '>
-                    <Link href='#/'>
                         <div className=' text-sm uppercase '>
-                            <button className='p-2 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 shadow-none text-white underline-offset-auto' >
+                            <button className='p-2 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 shadow-none text-white underline-offset-auto' onClick={checkListing} >
                                 Check Existing Listing
                             </button>
 
 
                         </div>
-                    </Link>
-
-                    <Link href='#/'>
-                        <div className=' text-sm uppercase '>
-
-
-                        </div>
-                    </Link>
                 </div>
 
             </div>
@@ -95,5 +96,5 @@ const Navbar = ({ CreateProject, }) => {
     );
 };
 
-export default Navbar;
+export default withRouter(Navbar);
 

@@ -1,58 +1,72 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Ads_Dropdown from './Ads_Dropdown';
+import { createDDWAdsWriteContract } from '../utilities/writeContract';
 
 function New() {
     const [userDetails, setuserDetails] = useState();
+    const [dropdata, setData] = useState();
+    const [viewdata, setViewData] = useState();
     const onSelect = async (values) => {
         setuserDetails({ ...userDetails, interest: values })
     }
 
+    function transform_data(_data) {
+        returnData = {}
+        for(i=0; i<data[8].length; i++){
+            if(!(_data[8][i] in  returnData)) returnData[_data[8][i]] = {}
+            if(_data[9][i] in returnData[_data[8][i]]) {
+
+            }
+            returnData[_data[8][i]] = { }
+        }
+        _data[8] 
+    }
+
+    useEffect(() => {
+        var Contract = createDDWAdsWriteContract();
+        Contract.view_listing_names().then(
+            (listings) => {
+                if(listings.length === 0) return;
+                setData(listings)
+                Contract.view_listing_analytics().then(
+                    (response) => {
+                        console.log(response)
+                        var thedata = transform_data(response)
+                        setViewData(thedata);
+                    }
+                )
+            }
+        )
+    })
+
     const data = [
         {
-            name: 'Page A',
-            uv: 4000,
-            pv: 2400,
+            name: 'Coffee',
+            male: 4000,
+            female: 2400,
 
         },
         {
-            name: 'Page B',
-            uv: 3000,
-            pv: 1398,
+            name: 'Club',
+            male: 3000,
+            female: 1398,
 
         },
         {
-            name: 'Page C',
-            uv: 2000,
-            pv: 9800,
+            name: 'Park',
+            male: 2000,
+            female: 9800,
             amt: 2290,
         },
         {
-            name: 'Page D',
-            uv: 2780,
-            pv: 3908,
+            name: 'Hiking',
+            male: 2780,
+            female: 3908,
             amt: 2000,
         },
-        {
-            name: 'Page E',
-            uv: 1890,
-            pv: 4800,
-            amt: 2181,
-        },
-        {
-            name: 'Page F',
-            uv: 2390,
-            pv: 3800,
-            amt: 2500,
-        },
-        {
-            name: 'Page G',
-            uv: 3490,
-            pv: 4300,
-            amt: 2100,
-        },
-    ];
+    ]
 
 
     return (
@@ -104,15 +118,15 @@ function New() {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="pv" fill="#8884d8" />
-                                <Bar dataKey="uv" fill="#82ca9d" />
+                                <Bar dataKey="male" fill="#8884d8" />
+                                <Bar dataKey="female" fill="#82ca9d" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
 
                     <div className="text-center">
 
-                        <Ads_Dropdown onSelect={onSelect} />
+                        <Ads_Dropdown onSelect={onSelect} data={dropdata} />
                     </div>
 
                     <div className='grid grid-flow-row grid-cols-2'>
