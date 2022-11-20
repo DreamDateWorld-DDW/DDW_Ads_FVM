@@ -1,8 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import Ads_Dropdown from './Ads_Dropdown';
 
 function New() {
+    const [userDetails, setuserDetails] = useState();
+    const onSelect = async (values) => {
+        setuserDetails({ ...userDetails, interest: values })
+    }
 
     const data = [
         {
@@ -97,6 +102,11 @@ function New() {
                                 <Bar dataKey="uv" fill="#82ca9d" />
                             </BarChart>
                         </ResponsiveContainer>
+                    </div>
+
+                    <div className="text-center">
+
+                        <Ads_Dropdown onSelect={onSelect} />
                     </div>
 
                     <div className='grid grid-flow-row grid-cols-2'>

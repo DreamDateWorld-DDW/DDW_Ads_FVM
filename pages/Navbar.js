@@ -74,7 +74,7 @@ const Navbar = ({ CreateProject, }) => {
                     <Link href='#/'>
                         <div className=' text-sm uppercase '>
                             <button className='p-2 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 shadow-none text-white underline-offset-auto' >
-                                Connect Wallet
+                                Check Existing Listing
                             </button>
 
 
@@ -89,8 +89,8 @@ const Navbar = ({ CreateProject, }) => {
                     </Link>
                 </div>
 
-            </div >
-        </div >
+            </div>
+        </div>
 
     );
 };
